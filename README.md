@@ -42,10 +42,14 @@ Available commands are:
   * `favorites` -  list favorites if called without arguments, supply favorite index (starting from 0) to select
   * `info` - retrieve network information 
   * `next_song` - skip to next favorite / playlist item
-  * `now_playing` - 
+  * `now_playing` - WIP
   * `play_pause` - toggle playback
   * `show_clock` - display clock
   * `volume_dec` - turn volume down
   * `volume_inc` - turn volume up
   * `volume_set` - print current volume if called without arguments, supply value between 0 and 20 to set
   * `state` - display various information about device state
+
+### Links
+
+  * https://musicpal.mcproductions.nl/ - various information about the device
