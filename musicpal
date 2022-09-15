@@ -1,0 +1,221 @@
+#!/usr/bin/env python3
+
+import argparse
+import re
+import requests
+import sys
+
+import bs4
+
+def admin_cgi(args, extra_params={}, request=requests.get):
+    """Wrapper for calls to /admin/cgi-bin/admin.cgi.
+
+    This is the main API call interface. All calls require the function name
+    argument 'f'. Common additional arguments are:
+      n: next page, i.e. the page returned by the call
+      a: action
+      i: index
+
+    Some calls might require a HTTP POST.
+
+    Args:
+      args (argparse.Namespace): Command line arguments object.
+      extra_params (dict): Additional API call parameters.
+      request (function): HTTP request type.
+    """
+    params = { 'f': args.command }
+    params.update(extra_params)
+    return request(
+        url = f'http://{args.hostname}/admin/cgi-bin/admin.cgi',
+        params = params,
+        auth = (args.username, args.password),
+    )
+
+def ipc_send(args):
+    """Wrapper for calls to /admin/cgi-bin/ipc_send.
+
+    ipc_send expects arguments separated by ampersands (i.e. not key,value pairs
+    separated by '=').
+
+    Args:
+      args (argparse.Namespace): Command line arguments object.
+    """
+    return requests.get(
+        url = f'http://{args.hostname}/admin/cgi-bin/ipc_send?' +
+        '&'.join([ k for k in [ args.command ] + args.args ]),
+        auth = (args.username, args.password),
+    )
+
+def state_cgi(args):
+    """Wrapper for calls to /admin/cgi-bin/state.cgi.
+
+    Args:
+      args (argparse.Namespace): Command line arguments object.
+    """
+    return requests.get(
+        url = f'http://{args.hostname}/admin/cgi-bin/state.cgi',
+        params = { 'fav': 0 },
+        auth = (args.username, args.password),
+    )
+
+command_map = {
+    ## ipc_send
+    'menu_collapse': ipc_send,
+    # play media-file-url
+    'play' : ipc_send,
+    'power_down': ipc_send,
+    'power_up': ipc_send,
+    'show_list': ipc_send,
+    'show_msg_box': ipc_send,
+    ## admin_cgi
+    'favorites': lambda args: admin_cgi(
+        args,
+        extra_params = {
+            'n': '../favorites.html',
+            'a': 'p',
+            'i': args.args[0],
+        } if len(args.args) else {
+            'n': '../favorites.html'
+        },
+    ),
+    'info': lambda args: admin_cgi(
+        args,
+        extra_params = {
+            'n': '../info.html',
+        },
+    ),
+    'next_song': admin_cgi,
+    'now_playing': lambda args: admin_cgi(
+        args,
+        extra_params = {
+            'n': '../now_playing.html',
+            'a': 'p',
+            'i': args.args[0],
+        } if len(args.args) else {
+            'n': '../now_playing.html',
+        },
+    ),
+    'play_pause': admin_cgi,
+    'show_clock': lambda args: admin_cgi(
+        args,
+        request=requests.post,
+    ),
+    'volume_dec': admin_cgi,
+    'volume_inc': admin_cgi,
+    'volume_set': lambda args: admin_cgi(
+        args,
+        extra_params = {
+            'n': '../now_playing_frame.html',
+            'v': args.args[0] if len(args.args) else -1,
+        }
+    ),
+    ## state_sgi
+    'state': state_cgi,
+}
+"""dict: Mapping of API command strings to appropriate API calls.
+"""
+
+class PrintCommandsExit(argparse.Action):
+    """Prints list of available API commands and exits the program."""
+    def __init__(self, option_strings, dest, nargs=0, **kwargs):
+        super().__init__(option_strings, dest, nargs, **kwargs)
+    def __call__(self, parser, namespace, values, option_string=None):
+        print('Available commands:')
+        for k in command_map:
+            print(f'  {k}')
+        sys.exit(0)
+
+def main():
+    parser = argparse.ArgumentParser(
+        conflict_handler='resolve',
+        description='Command line client for the Freecom MusicPal.'
+    )
+    parser.add_argument(
+        '-h', '--hostname', default='musicpal',
+        help='IP or hostname of the MusicPal device (default: %(default)s)',
+    )
+    parser.add_argument(
+        '-u', '--username', default='admin',
+        help='username for HTTP authorization (default: %(default)s)',
+    )
+    parser.add_argument(
+        '-p', '--password', default='admin',
+        help='password for HTTP authorization (default: %(default)s)',
+    )
+    parser.add_argument(
+        '-d', '--debug', action='store_true',
+        help='print additional output for debugging',
+    )
+    parser.add_argument(
+        '-l', '--list', action=PrintCommandsExit,
+        help='print list available API commands and exit'
+    )
+    parser.add_argument(
+        'command', default='state', nargs='?',
+        help='command for sending to the MusicPal device (default: %(default)s)'
+    )
+    parser.add_argument(
+        'args', nargs='*',
+        help='(optional) arguments for given command'
+    )
+    args = parser.parse_args()
+
+    # select appropriate API call for command
+    command_trf = command_map.get(args.command)
+    if not command_trf:
+        print(f'Unknown command "{args.command}"')
+        sys.exit(1)
+    r = command_trf(args)
+    if args.debug:
+        print(f'{r.url = }, {r.status_code = }')
+
+    # parse API call output (and possibly print it)
+    soup = bs4.BeautifulSoup(r.content, 'lxml')
+    if args.command == 'state':
+        for tag in soup.state.children:
+            if tag.name:
+                print(f'{tag.name:18}: {tag.string}')
+    elif args.command == 'favorites':
+        if not len(args.args):
+            for i, tag in enumerate(soup.find_all(class_='table_alt1')):
+                name = tag.find(attrs = { 'name': f'name_{i}' })
+                if name:
+                    print(f'{i}: {name["value"]}')
+        else:
+            i = args.args[0]
+            name = soup.find(attrs = { 'name': f'name_{i}' })
+            if name:
+                print(f'Playing favorite {i}: {name["value"]}')
+            else:
+                print(f'Favorite {i} does not exist')
+    elif args.command == 'info':
+        content = soup.find(class_='content_content')
+        for tag in content:
+            if type(tag) == bs4.element.Comment \
+               or tag.name in [ 'div' ] \
+               or not tag.string:
+                continue
+            string = tag.string.strip()
+            if not len(string):
+                continue
+            if tag.name == 'span':
+                    print(f' {string}', end='')
+            elif tag.name in [ 'b']:
+                print(f'\n{string}')
+            else:
+                if tag.previous_sibling.name == 'span':
+                    print(f' {string}')
+                else:
+                    print(f'{string}')
+    elif args.command == 'now_playing':
+        content = soup.find(class_='content_content')
+        print(content)
+    elif args.command == 'volume_set':
+        volume = len(soup.find_all('img', src='/images/volume_on.gif')) - 1
+        print(f'Volume: {volume}')
+
+    # just raise error if status_code != 200
+    r.raise_for_status()
+
+if __name__ == '__main__':
+    main()
