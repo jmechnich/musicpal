@@ -97,11 +97,8 @@ command_map = {
     'now_playing': lambda args: admin_cgi(
         args,
         extra_params = {
-            'n': '../now_playing.html',
-            'a': 'p',
-            'i': args.args[0],
-        } if len(args.args) else {
-            'n': '../now_playing.html',
+            'f': 'now_playing_frame',
+            'n': '../now_playing_frame.html',
         },
     ),
     'play_pause': admin_cgi,
@@ -221,10 +218,14 @@ def main():
                     print(f'{string}')
     elif args.command == 'now_playing':
         content = soup.find(class_='content_content')
-        print(content)
+        for s in content.stripped_strings:
+            print(s)
     elif args.command == 'volume_set':
         volume = len(soup.find_all('img', src='/images/volume_on.gif')) - 1
         print(f'Volume: {volume}')
+    else:
+        if args.debug:
+            print(r.text)
 
     # just raise error if status_code != 200
     r.raise_for_status()
