@@ -31,6 +31,15 @@ def admin_cgi(args, extra_params={}, request=requests.get):
         auth = (args.username, args.password),
     )
 
+def debug_cgi(args):
+    """Wrapper for calls to /admin/cgi-bin/debug.cgi."""
+    params = { 'f': args.command }
+    return requests.get(
+        url = f'http://{args.hostname}/admin/cgi-bin/debug.cgi',
+        params = params,
+        auth = (args.username, args.password),
+    )
+
 def ipc_send(args):
     """Wrapper for calls to /admin/cgi-bin/ipc_send.
 
@@ -109,6 +118,9 @@ command_map = {
             'v': args.args[0] if len(args.args) else -1,
         }
     ),
+    ## debug_cgi
+    'reboot': debug_cgi,
+    'restart': debug_cgi,
     ## state_sgi
     'state': state_cgi,
 }

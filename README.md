@@ -5,7 +5,18 @@
 
 ## musicpal
 
-Command line interface for remote controlling a Freecom MusicPal.
+Command line interface for remote controlling a _Freecom MusicPal_ media player.
+
+The Freecom MusicPal is one of the early hardware media players /
+internet radios that was released around 2007.
+
+At a price of 100-150 Euros, it was quite cheap and also hackable as
+it is running a Linux-based OS with easy debugging access and a
+published development toolchain.
+
+The last stable firmware version 1.67 sports a 2.6.16 Linux
+kernel. All services are offered by a single application called
+_Nashville_.
 
 ### Usage
 
@@ -48,6 +59,8 @@ Available commands are:
   * `volume_dec` - turn volume down
   * `volume_inc` - turn volume up
   * `volume_set` - print current volume if called without arguments, supply value between 0 and 20 to set
+  * `reboot` - reboot device
+  * `restart` - restart Nashville
   * `state` - display various information about device state
 
 ### Links
