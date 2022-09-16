@@ -44,24 +44,26 @@ optional arguments:
 
 Available commands are:
 
-  * `menu_collapse` - close menu on display
-  * `play` - play media file from (http) url
-  * `power_down` - suspend device
-  * `power_up` - wake-up device
-  * `show_list` - display a list, arguments are the list items
-  * `show_msg_box` - display a message box
-  * `favorites` -  list favorites if called without arguments, supply favorite index (starting from 0) to select
-  * `info` - retrieve network information 
-  * `next_song` - skip to next favorite / playlist item
-  * `now_playing` - WIP
-  * `play_pause` - toggle playback
-  * `show_clock` - display clock
-  * `volume_dec` - turn volume down
-  * `volume_inc` - turn volume up
-  * `volume_set` - print current volume if called without arguments, supply value between 0 and 20 to set
-  * `reboot` - reboot device
-  * `restart` - restart Nashville
-  * `state` - display various information about device state
+| Command        | Description |
+| ---------------|-------------|
+|`menu_collapse` | close menu on display |
+|`play`          | play media file from (http) url |
+|`power_down`    | suspend device |
+|`power_up`      | wake-up device |
+|`show_list`     | display a list, arguments are the list items |
+|`show_msg_box`  | display a message box |
+|`favorites`     | list favorites if called without arguments, supply favorite index (starting from 0) to select |
+|`info`          | retrieve network information  |
+|`next_song`     | skip to next favorite / playlist item |
+|`now_playing`   | WIP |
+|`play_pause`    | toggle playback |
+|`show_clock`    | display clock |
+|`volume_dec`    | turn volume down |
+|`volume_inc`    | turn volume up |
+|`volume_set`    | print current volume if called without arguments, supply value between 0 and 20 to set |
+|`reboot`        | reboot device |
+|`restart`       | restart Nashville |
+|`state`         | display various information about device state |
 
 ### Links
 
