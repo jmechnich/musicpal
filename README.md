@@ -16,7 +16,7 @@ published development toolchain.
 
 The last stable firmware version 1.67 sports a 2.6.16 Linux
 kernel. All services are offered by a single application called
-_Nashville_.
+_Nashville_ which, unfortunately, is closed source.
 
 ### Usage
 
@@ -44,26 +44,26 @@ optional arguments:
 
 Available commands are:
 
-| Command        | Description |
-| ---------------|-------------|
-|`menu_collapse` | close menu on display |
-|`play`          | play media file from (http) url |
-|`power_down`    | suspend device |
-|`power_up`      | wake-up device |
-|`show_list`     | display a list, arguments are the list items |
-|`show_msg_box`  | display a message box |
-|`favorites`     | list favorites if called without arguments, supply favorite index (starting from 0) to select |
-|`info`          | retrieve network information  |
-|`next_song`     | skip to next favorite / playlist item |
-|`now_playing`   | WIP |
-|`play_pause`    | toggle playback |
-|`show_clock`    | display clock |
-|`volume_dec`    | turn volume down |
-|`volume_inc`    | turn volume up |
-|`volume_set`    | print current volume if called without arguments, supply value between 0 and 20 to set |
-|`reboot`        | reboot device |
-|`restart`       | restart Nashville |
-|`state`         | display various information about device state |
+| Command        | Description | Arguments |
+| ---------------|-------------| ----------|
+|`menu_collapse` | close menu on display | None |
+|`play`          | play media file | HTTP URL |
+|`power_down`    | suspend device | None |
+|`power_up`      | wake-up device | None |
+|`show_list`     | display a list | list items to be shown|
+|`show_msg_box`  | display a message box | text to be shown |
+|`favorites`     | list or select favorites | None or favorite index (starting from 0) |
+|`info`          | retrieve network information | None |
+|`next_song`     | skip to next favorite / playlist item | None |
+|`now_playing`   | print currently playing track | None |
+|`play_pause`    | toggle playback | None |
+|`show_clock`    | display clock | None |
+|`volume_dec`    | turn volume down | None |
+|`volume_inc`    | turn volume up | None |
+|`volume_set`    | print or set current volume | None or value between 0 and 20 |
+|`reboot`        | reboot device | None |
+|`restart`       | restart Nashville | None |
+|`state`         | display various information about device state | None |
 
 ### Links
 
