@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
 import argparse
+import time
 import re
 import requests
 import sys
+from datetime import timedelta
 
 import bs4
 
@@ -104,6 +106,13 @@ command_map = {
     'play_pause': admin_cgi,
     'show_clock': lambda args: admin_cgi(
         args,
+        request=requests.post,
+    ),
+    'uptime': lambda args: admin_cgi(
+        args,
+        extra_params = {
+            'n': '../empty.html',
+        },
         request=requests.post,
     ),
     'volume_dec': admin_cgi,
@@ -220,6 +229,10 @@ def main():
         content = soup.find(class_='content_content')
         for s in content.stripped_strings:
             print(s)
+    elif args.command == 'uptime':
+        _, seconds = r.text.strip().split()
+        delta = timedelta(seconds=float(seconds))
+        print(delta)
     elif args.command == 'volume_set':
         volume = len(soup.find_all('img', src='/images/volume_on.gif')) - 1
         print(f'Volume: {volume}')
