@@ -22,20 +22,27 @@ def admin_cgi(args, extra_params={}, request=requests.get):
 
     Args:
       args (argparse.Namespace): Command line arguments object.
-      extra_params (dict): Additional API call parameters.
+      extra_params (dict or None): Additional API call parameters.
       request (function): HTTP request type.
     """
-    params = { 'f': args.command }
-    params.update(extra_params)
+    if extra_params is None:
+        params = {}
+    else:
+        params = { 'f': args.command }
+        params.update(extra_params)
     return request(
         url = f'http://{args.hostname}/admin/cgi-bin/admin.cgi',
         params = params,
         auth = (args.username, args.password),
     )
 
-def debug_cgi(args):
+def debug_cgi(args, extra_params={}):
     """Wrapper for calls to /admin/cgi-bin/debug.cgi."""
-    params = { 'f': args.command }
+    if extra_params is None:
+        params = {}
+    else:
+        params = { 'f': args.command }
+        params.update(extra_params)
     return requests.get(
         url = f'http://{args.hostname}/admin/cgi-bin/debug.cgi',
         params = params,
@@ -72,7 +79,6 @@ def state_cgi(args):
 command_map = {
     ## ipc_send
     'menu_collapse': ipc_send,
-    # play media-file-url
     'play' : ipc_send,
     'power_down': ipc_send,
     'power_up': ipc_send,
@@ -125,8 +131,17 @@ command_map = {
         }
     ),
     ## debug_cgi
+    'log': lambda args: debug_cgi(
+        args, extra_params = None,
+    ),
     'reboot': debug_cgi,
     'restart': debug_cgi,
+    'start_telnet_server': lambda args: debug_cgi(
+        args,
+        extra_params = {
+            'v': 'true',
+            },
+    ),
     ## state_sgi
     'state': state_cgi,
 }
@@ -225,14 +240,16 @@ def main():
                     print(f' {string}')
                 else:
                     print(f'{string}')
+    elif args.command == 'log':
+        print(soup.textarea.string.strip())
     elif args.command == 'now_playing':
         content = soup.find(class_='content_content')
         for s in content.stripped_strings:
             print(s)
     elif args.command == 'uptime':
-        _, seconds = r.text.strip().split()
+        _, seconds = soup.string.strip().split()
         delta = timedelta(seconds=float(seconds))
-        print(delta)
+        print(f'Uptime: {delta}')
     elif args.command == 'volume_set':
         volume = len(soup.find_all('img', src='/images/volume_on.gif')) - 1
         print(f'Volume: {volume}')
