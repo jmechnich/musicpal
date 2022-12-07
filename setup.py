@@ -17,7 +17,7 @@ setup(
     scripts=["musicpal"],
     use_scm_version={"local_scheme": "no-local-version"},
     setup_requires=["setuptools_scm"],
-    install_requires=["requests"],
+    install_requires=["beautifulsoup4", "lxml", "requests"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
