@@ -20,6 +20,12 @@ _Nashville_ which, unfortunately, is closed source.
 
 ### Usage
 
+After installation using `pip` or `pipx`, use the command `musicpal`
+will be available.
+
+When running locally from this repository, the wrapper script `mpal`
+in the top-level directory or `python3 -m musicpal` can be used, alternatively.
+
 ```
 usage: musicpal [--help] [-h HOSTNAME] [-u USERNAME] [-p PASSWORD] [-d] [-l]
                 [command] [args ...]

@@ -14,7 +14,12 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/jmechnich/musicpal",
-    scripts=["musicpal"],
+    packages=["musicpal"],
+    entry_points={
+        "console_scripts": [
+            "musicpal = musicpal.__main__:main",
+        ]
+    },
     use_scm_version={"local_scheme": "no-local-version"},
     setup_requires=["setuptools_scm"],
     install_requires=["beautifulsoup4", "lxml", "requests"],
